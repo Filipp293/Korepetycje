@@ -1,0 +1,28 @@
+﻿@page "/ConfirmEmail"
+@layout AuthLayout
+@inject NotificationService NotificationService
+
+<RadzenStack Gap="2.5rem" AlignItems="AlignItems.Center">
+    
+        <h2 style="text-align: center">Zweryfikuj adres E-mail</h2>
+        <RadzenIcon Icon="mark_email_unread" style="transform: scale(3)"></RadzenIcon>
+        <RadzenButton ButtonType="ButtonType.Submit" Click="@SprawdznieAdresuEmail">Adres Potwierdzony </RadzenButton>
+</RadzenStack>
+
+    @code {
+    bool ZwerifikownyAdres = false; 
+
+    private void SprawdznieAdresuEmail()
+    {
+
+        // funkcja ma sprawdzić czy adres email został potiwerdzoiny
+
+        if (ZwerifikownyAdres == false)
+        {
+            {
+                NotificationMessage message = new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Błąd", Detail = "Adres Email nie został jescze potiwerdzony ", Duration = 4000 };
+                NotificationService.Notify(message);
+            }
+        }
+	}
+}
