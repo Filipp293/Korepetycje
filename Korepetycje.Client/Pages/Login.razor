@@ -1,0 +1,145 @@
+﻿@page "/login"
+@layout AuthLayout
+
+<RadzenStack  Gap="2.5rem" >
+    <RadzenStack  AlignItems="AlignItems.Center">
+    <RadzenImage Path="https://www.radzen.com/images/logo.png" Style="width: 10rem;" AlternateText="url image" />
+    </RadzenStack >
+
+    @if (mode == "login")
+    {
+
+        <RadzenTemplateForm  TItem="LoginModel" Data="@loginModel" Submit="@OnLogin">
+            <RadzenStack Gap="1rem">
+                <RadzenSelectBar @bind-Value="@mode" TValue="string" Style="width: 100%;">
+                    <Items>
+                        <RadzenSelectBarItem Text="Logowanie" Value="@("login")" Style="flex: 1;" />
+                        <RadzenSelectBarItem Text="Rejestracja" Value="@("register")" Style="flex: 1;" />
+                    </Items>
+                </RadzenSelectBar>
+                <RadzenStack Gap="0.25rem">
+                    <RadzenFormField Text="E-mail" Variant="Variant.Outlined">
+                        <RadzenTextBox @bind-Value="loginModel.Email" Name="Email" />
+                    </RadzenFormField>
+                    <RadzenEmailValidator Component="Email" Text="Podaj poprawny adres e-mail" Popup="true" Style="position:relative; width:fit-content " />
+                    <RadzenRequiredValidator Component="Email" Text="E-mail jest wymagan" Popup="true" Style="position:relative; width:fit-content " />
+                </RadzenStack>
+                <RadzenStack Gap="0.25rem">
+                    <RadzenFormField Text="Hasło" Variant="Variant.Outlined">
+                        <RadzenPassword @bind-Value="loginModel.Password" Name="Password" />
+                    </RadzenFormField>
+                    <RadzenRequiredValidator Component="Password" Text="Hasło jest wymagane" Popup="true" Style="position:relative; width:fit-content " />
+                </RadzenStack>
+                <RadzenButton ButtonType="ButtonType.Submit" Click="OnLogin" Text="Zaloguj się" Style="width: 100%; margin-top: 0.5rem;" />
+            </RadzenStack>
+        </RadzenTemplateForm>
+    }
+    else
+    {
+        <RadzenTemplateForm @ref="form" TItem="RegisterModel" Data="@registerModel" Submit="@OnRegister">
+
+
+            @if (step == 1)
+            {
+                <RadzenStack Gap="1rem">
+                    <RadzenSelectBar @bind-Value="@mode" TValue="string" Style="width: 100%;">
+                        <Items>
+                            <RadzenSelectBarItem Text="Logowanie" Value="@("login")" Style="flex: 1;" />
+                            <RadzenSelectBarItem Text="Rejestracja" Value="@("register")" Style="flex: 1;" />
+                        </Items>
+                    </RadzenSelectBar>
+                    <RadzenStack Gap="0.25rem">
+                        <RadzenFormField Text="Imię" Variant="Variant.Outlined">
+                            <RadzenTextBox @bind-Value="registerModel.Name" Name=Name" />
+                        </RadzenFormField>
+                        <RadzenRequiredValidator Component="Name" Text="Imie jest wymagane" Popup="true" Style="position:relative; width:fit-content " />
+                    </RadzenStack>
+                    <RadzenStack Gap="0.25rem">
+                        <RadzenFormField Text="Nazwisko" Variant="Variant.Outlined">
+                            <RadzenTextBox @bind-Value="registerModel.LastName" Name="LastName" />
+                        </RadzenFormField>
+                        <RadzenRequiredValidator Component="LastName" Text="Nazwisko jest wymagane" Popup="true" Style="position:relative; width:fit-content " />
+                    </RadzenStack>
+                    <RadzenButton  Click="@Dalej" Text="Dalej" Style="width: 100%; margin-top: 0.5rem;" />
+                </RadzenStack>
+            }
+            else if (step == 2)
+            {
+                <RadzenStack class="step-animated" Gap="1rem">
+                    <RadzenSelectBar @bind-Value="@registerModel.RodzajKonta" TValue="int" Style="width: 100%;">
+                        <Items>
+                            <RadzenSelectBarItem Text="Korepetytor" Value="@(0)" Style="flex: 1;" />
+                            <RadzenSelectBarItem Text="Rodzic/Uczeń" Value="@(1)" Style="flex: 1;" />
+                        </Items>
+                    </RadzenSelectBar>
+                    <RadzenStack Gap="0.25rem">
+                        <RadzenFormField Text="E-mail" Variant="Variant.Outlined">
+                            <RadzenTextBox @bind-Value="registerModel.Email" Name="Email" />
+                        </RadzenFormField>
+                        <RadzenEmailValidator Component="Email" Text="Podaj poprawny adres e-mail" Popup="true" Style="position:relative; width:fit-content " />
+                        <RadzenRequiredValidator Component="Email" Text="E-mail jest wymagan" Popup="true" Style="position:relative; width:fit-content " />
+                    </RadzenStack>
+                    <RadzenStack Gap="0.25rem">
+                        <RadzenFormField Text="Hasło" Variant="Variant.Outlined">
+                            <RadzenPassword @bind-Value="registerModel.Password" Name="Password" />
+                        </RadzenFormField>
+                        <RadzenRegexValidator Component="Password" 
+                      Text="Hasło musi mieć min. 8 znaków, zawierać wielką literę, cyfrę i znak specjalny." 
+                        Pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@@$!%*?&._\-#+])[A-Za-z\d@@$!%*?&._\-#+]{8,}$" 
+                                              Style="position:relative; width:fit-content " Popup="true" />
+                        <RadzenRequiredValidator Component="Password" Text="Hasło jest wymagane" Popup="true" Style="position:relative; width:fit-content " />
+                    </RadzenStack>
+                    <RadzenStack Gap="1rem" Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Center" >
+                        <RadzenButton Click="@Cofinj" Text="Wstecz" Style="width: 50%; margin-top: 0.5rem;" />
+                        <RadzenButton ButtonType="ButtonType.Submit" Text="Utwór konto" Style="width: 50%; margin-top: 0.5rem;" />
+                    </RadzenStack>
+                </RadzenStack>
+            }
+
+        </RadzenTemplateForm>
+    }
+</RadzenStack>
+
+    @code {
+    private RadzenTemplateForm<RegisterModel> form;
+    private string mode = "login";
+    private LoginModel loginModel = new();
+    private RegisterModel registerModel = new();
+    private int step = 1;
+    private void Dalej()
+    {
+
+        if (form.EditContext != null && form.EditContext.Validate())
+        {
+            step++;
+        }
+
+             
+    }
+    private void Cofinj()
+    {
+        step--;
+    }
+
+    private void OnLogin()
+    {
+        Console.WriteLine(loginModel.Email);
+        Console.WriteLine( loginModel.Password);
+    }
+    private void OnRegister() { }
+
+    public class LoginModel
+    {
+        public string Email { get; set; } = string.Empty;
+        public string Password { get; set; } = string.Empty;
+    }
+
+    public class RegisterModel
+    {
+        public string Email { get; set; } = string.Empty;
+        public string Password { get; set; } = string.Empty;
+        public string Name { get; set; } = string.Empty;
+        public string LastName { get; set; } = string.Empty;
+        public int RodzajKonta { get; set; } = 0;
+    }
+}

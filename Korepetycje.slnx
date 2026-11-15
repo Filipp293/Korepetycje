@@ -1,3 +1,4 @@
 <Solution>
+  <Project Path="Korepetycje.Client/Korepetycje.Client.csproj" Id="8cb5a0c5-3f95-4612-bec8-8648c9e45875" />
   <Project Path="Korepetycje/Korepetycje.csproj" />
 </Solution>
