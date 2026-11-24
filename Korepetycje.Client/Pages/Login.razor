@@ -104,6 +104,7 @@
 @inject HttpClient Http
 @inject NavigationManager Navigation
 @inject NotificationService notificationService
+@inject AuthenticationStateProvider AuthStateProvider
 
     @code {
     private RadzenTemplateForm<RegisterModel> form;
@@ -139,7 +140,10 @@
 
             if (response.IsSuccessStatusCode)
             {
+                var authData = await response.Content.ReadFromJsonAsync<AuthResponseDto>();
                 // Logowanie zakończone sukcesem, wyświetlenie powiadomienia i przekierowanie na stronę główną
+                var customAuth = (CustomAuthStateProvider)AuthStateProvider;
+                customAuth.MarkUserAsAuthenticated(authData.Email, authData.Role, authData.Id);
                 notificationService.Notify(new NotificationMessage
                 {
                     Severity = NotificationSeverity.Success,
@@ -148,7 +152,14 @@
                     Duration = 3000
                 });
                 await Task.Delay(500);
-                Navigation.NavigateTo("/");
+                if (authData != null && authData.EmailVerified)
+                {
+                    Navigation.NavigateTo("/");
+                }
+                else
+                {
+                    Navigation.NavigateTo("/ConfirmEmail");
+                }
             }
             else
             {
@@ -255,5 +266,15 @@
         public string LastName { get; set; } = string.Empty;
         public int RodzajKonta { get; set; } = 0;
         // 0 - Korepetytor, 1 - Rodzic/Uczeń
+    }
+    private class AuthResponseDto
+    {
+        public string Id { get; set; } = string.Empty;
+        public string Email { get; set; } = string.Empty;
+        public string FirstName { get; set; } = string.Empty;
+        public string LastName { get; set; } = string.Empty;
+        public string Role { get; set; } = string.Empty;
+        public string Token { get; set; } = string.Empty;
+        public bool EmailVerified { get; set; }
     }
 }

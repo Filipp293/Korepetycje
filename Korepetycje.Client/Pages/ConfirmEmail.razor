@@ -1,28 +1,117 @@
 ﻿@page "/ConfirmEmail"
 @layout AuthLayout
+@inject HttpClient Http
+@inject NavigationManager Navigation
 @inject NotificationService NotificationService
 
 <RadzenStack Gap="2.5rem" AlignItems="AlignItems.Center">
+    <h2 style="text-align: center">Weryfikacja adresu E-mail</h2>
     
-        <h2 style="text-align: center">Zweryfikuj adres E-mail</h2>
-        <RadzenIcon Icon="mark_email_unread" style="transform: scale(3)"></RadzenIcon>
-        <RadzenButton ButtonType="ButtonType.Submit" Click="@SprawdznieAdresuEmail">Adres Potwierdzony </RadzenButton>
+    @if (isChecking)
+    {
+        <RadzenProgressBarCircular Value="100" ShowValue="false" Mode="ProgressBarMode.Indeterminate" />
+        <RadzenText TextStyle="TextStyle.Body1">Trwa sprawdzanie tokenu...</RadzenText>
+    }
+    else if (ZwerifikownyAdres)
+    {
+        <RadzenIcon Icon="check_circle" IconStyle="IconStyle.Success" style="transform: scale(3)"></RadzenIcon>
+        <RadzenText TextStyle="TextStyle.H6" Style="color: var(--rz-success);">Adres E-mail został pomyślnie potwierdzony!</RadzenText>
+        <RadzenButton ButtonType="ButtonType.Button" Click="@PrzejdzDoLogowania">Przejdź do logowania</RadzenButton>
+    }
+    else
+    {
+        <RadzenIcon Icon="mark_email_unread" IconStyle="IconStyle.Danger" style="transform: scale(3)"></RadzenIcon>
+        <RadzenButton ButtonType="ButtonType.Button" Click="@SprawdznieAdresuEmail">Sprawdź ponownie</RadzenButton>
+    }
 </RadzenStack>
 
-    @code {
-    bool ZwerifikownyAdres = false; 
+@code {
+    [SupplyParameterFromQuery]
+    public string? Token { get; set; }
 
-    private void SprawdznieAdresuEmail()
+    private bool ZwerifikownyAdres = false;
+    private bool isChecking = true;
+
+    protected override async Task OnInitializedAsync()
     {
+        // Automatycznie sprawdzamy token zaraz po wejściu na stronę z maila
+        await SprawdznieAdresuEmail();
+    }
 
-        // funkcja ma sprawdzić czy adres email został potiwerdzoiny
-
-        if (ZwerifikownyAdres == false)
+    private async Task SprawdznieAdresuEmail()
+    {
+        if (string.IsNullOrWhiteSpace(Token))
         {
+            isChecking = false;
+            ZwerifikownyAdres = false;
+            NotificationService.Notify(new NotificationMessage
             {
-                NotificationMessage message = new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Błąd", Detail = "Adres Email nie został jescze potiwerdzony ", Duration = 4000 };
-                NotificationService.Notify(message);
+                Severity = NotificationSeverity.Error,
+                Summary = "Błąd",
+                Detail = "Brak aktywacji konta. Kliknij w link w mailu, aby aktywować konto.",
+                Duration = 4000
+            });
+            return;
+        }
+
+        isChecking = true;
+
+        try
+        {
+            // Strzał do Twojego endpointu w AuthController
+            var response = await Http.GetAsync($"api/auth/confirm-email?token={Token}");
+
+            if (response.IsSuccessStatusCode)
+            {
+                ZwerifikownyAdres = true;
+                NotificationService.Notify(new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Success,
+                    Summary = "Sukces",
+                    Detail = "Email został pomyślnie zweryfikowany!",
+                    Duration = 4000
+                });
+            }
+            else
+            {
+                ZwerifikownyAdres = false;
+                var error = await response.Content.ReadFromJsonAsync<ErrorResponseDto>();
+                string errorMsg = error?.Message ?? "Adres Email nie został jeszcze potwierdzony lub token wygasł.";
+
+                NotificationService.Notify(new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Error,
+                    Summary = "Błąd",
+                    Detail = errorMsg,
+                    Duration = 4000
+                });
             }
         }
-	}
+        catch (Exception ex)
+        {
+            ZwerifikownyAdres = false;
+            NotificationService.Notify(new NotificationMessage
+            {
+                Severity = NotificationSeverity.Error,
+                Summary = "Błąd połączenia",
+                Detail = "Nie udało się połączyć z serwerem API.",
+                Duration = 4000
+            });
+            Console.WriteLine($"Błąd podczas weryfikacji: {ex.Message}");
+        }
+        finally
+        {
+            isChecking = false;
+        }
+    }
+
+    private void PrzejdzDoLogowania()
+    {
+        Navigation.NavigateTo("/login");
+    }
+
+    private class ErrorResponseDto
+    {
+        public string Message { get; set; } = string.Empty;
+    }
 }

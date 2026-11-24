@@ -1,5 +1,4 @@
 <Solution>
   <Project Path="Korepetycje.Api/Korepetycje.Api.csproj" Id="18c63ae5-18e7-421e-8a48-157e1e9c831b" />
   <Project Path="Korepetycje.Client/Korepetycje.Client.csproj" Id="8cb5a0c5-3f95-4612-bec8-8648c9e45875" />
-  <Project Path="Korepetycje/Korepetycje.csproj" />
 </Solution>

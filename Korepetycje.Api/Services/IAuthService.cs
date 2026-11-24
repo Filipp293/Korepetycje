@@ -6,5 +6,6 @@ namespace Korepetycje.Api.Services
     {
         Task<(bool Success, string Message, AuthResponseDto? Data)> RegisterAsync(RegisterRequestDto request);
         Task<(bool Success, string Message, AuthResponseDto? Data)> LoginAsync(LoginRequestDto request);
+        Task<(bool Success, string Message)> ConfirmEmailAsync(string token);
     }
 }
