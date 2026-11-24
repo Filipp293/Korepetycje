@@ -3,7 +3,7 @@
 
 <RadzenStack  Gap="2.5rem" >
     <RadzenStack  AlignItems="AlignItems.Center">
-        <RadzenImage Path="logo.png" Style="width: 10rem;" AlternateText="logo image" />
+    <RadzenImage Path="https://www.radzen.com/images/logo.png" Style="width: 10rem;" AlternateText="url image" />
     </RadzenStack >
 
     @if (mode == "login")
@@ -30,7 +30,6 @@
                     </RadzenFormField>
                     <RadzenRequiredValidator Component="Password" Text="Hasło jest wymagane" Popup="true" Style="position:relative; width:fit-content " />
                 </RadzenStack>
-                <RadzenButton ButtonType="ButtonType.Submit" Click="OnLogin" Text="Zaloguj się" Style="width: 100%; margin-top: 0.5rem;" />
             </RadzenStack>
         </RadzenTemplateForm>
     }
@@ -91,7 +90,7 @@
                     </RadzenStack>
                     <RadzenStack Gap="1rem" Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Center" >
                         <RadzenButton Click="@Cofinj" Text="Wstecz" Style="width: 50%; margin-top: 0.5rem;" />
-                        <RadzenButton ButtonType="ButtonType.Submit" Text="Utwór konto" Style="width: 50%; margin-top: 0.5rem;" />
+                        <RadzenButton ButtonType="ButtonType.Submit" Disabled="@isLoading" Text="Utwórz konto" Style="width: 50%; margin-top: 0.5rem;" />
                     </RadzenStack>
                 </RadzenStack>
             }
@@ -100,12 +99,20 @@
     }
 </RadzenStack>
 
+
+@inject HttpClient Http
+@inject NavigationManager Navigation
+@inject NotificationService notificationService
+
     @code {
     private RadzenTemplateForm<RegisterModel> form;
     private string mode = "login";
     private LoginModel loginModel = new();
     private RegisterModel registerModel = new();
     private int step = 1;
+    // Flaga wskazująca, czy trwa proces logowania lub rejestracji służąca do wyłączenia przycisków podczas oczekiwania na odpowiedź z serwera
+    private bool isLoading = false;
+    
     private void Dalej()
     {
 
@@ -114,21 +121,123 @@
             step++;
         }
 
-
+             
     }
     private void Cofinj()
     {
         step--;
     }
 
-    private void OnLogin()
+    // Metoda obsługująca logowanie
+    private async Task OnLogin()
     {
-        // Tutaj podepnij logowanie (dane w: loginModel)
-        
+        isLoading = true;
+        try
+        {
+            var response = await Http.PostAsJsonAsync("api/auth/login", loginModel);
+
+            if (response.IsSuccessStatusCode)
+            {
+                // Logowanie zakończone sukcesem, wyświetlenie powiadomienia i przekierowanie na stronę główną
+                notificationService.Notify(new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Success,
+                    Summary = "Sukces",
+                    Detail = "Zalogowano pomyślnie!",
+                    Duration = 3000
+                });
+                await Task.Delay(500);
+                Navigation.NavigateTo("/");
+            }
+            else
+            {
+                // Logowanie nie powiodło się, wyświetlenie powiadomienia z komunikatem o błędzie
+                var errorResult = await response.Content.ReadFromJsonAsync<ErrorResponseDto>();
+                string message = errorResult?.Message ?? "Nieprawidłowy e-mail lub hasło.";
+
+                notificationService.Notify(new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Error,
+                    Summary = "Błąd logowania",
+                    Detail = message,
+                    Duration = 4000
+                });
+            }
+        }
+        catch (Exception ex) // Obsługa wyjątków, np. brak połączenia z serwerem
+        {
+            notificationService.Notify(new NotificationMessage
+            {
+                Severity = NotificationSeverity.Error,
+                Summary = "Błąd połączenia",
+                Detail = "Nie udało się połączyć z serwerem API.",
+                Duration = 4000
+            });
+            Console.WriteLine($"Błąd podczas logowania: {ex.Message}");
+        }
+        finally
+        {
+            isLoading = false;
+        }
     }
-    private void OnRegister()
+
+    // Metoda obsługująca rejestrację
+    private async Task OnRegister()
     {
-        // Tutaj podepnij rejestrację (dane w: registerModel)
+        isLoading = true;
+        try
+        {
+            var response = await Http.PostAsJsonAsync("api/auth/register", registerModel);
+
+            if (response.IsSuccessStatusCode)
+            {
+                // Rejestracja zakończona sukcesem, wyświetlenie powiadomienia i przejście do trybu logowania
+                notificationService.Notify(new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Success,
+                    Summary = "Sukces",
+                    Detail = "Konto zostało utworzone! Możesz się teraz zalogować.",
+                    Duration = 4000
+                });
+
+                mode = "login";
+                step = 1;
+            }
+            else
+            {
+                // Rejestracja nie powiodła się, wyświetlenie powiadomienia z komunikatem o błędzie
+                var errorResult = await response.Content.ReadFromJsonAsync<ErrorResponseDto>();
+                string message = errorResult?.Message ?? "Wystąpił błąd podczas rejestracji.";
+
+                notificationService.Notify(new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Error,
+                    Summary = "Błąd rejestracji",
+                    Detail = message,
+                    Duration = 4000
+                });
+            }
+        }
+        catch (Exception ex) // Obsługa wyjątków, np. brak połączenia z serwerem
+        {
+            notificationService.Notify(new NotificationMessage
+            {
+                Severity = NotificationSeverity.Error,
+                Summary = "Błąd połączenia",
+                Detail = "Nie udało się połączyć z serwerem API.",
+                Duration = 4000
+            });
+            Console.WriteLine($"Błąd podczas rejestracji: {ex.Message}");
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private class ErrorResponseDto
+    {
+        public string Message { get; set; } = string.Empty;
     }
 
     public class LoginModel
