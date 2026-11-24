@@ -30,6 +30,7 @@
                     </RadzenFormField>
                     <RadzenRequiredValidator Component="Password" Text="Hasło jest wymagane" Popup="true" Style="position:relative; width:fit-content " />
                 </RadzenStack>
+                <RadzenButton ButtonType="ButtonType.Submit" Disabled="@isLoading" Text="Zaloguj się" Style="width: 100%; margin-top: 0.5rem;" />
             </RadzenStack>
         </RadzenTemplateForm>
     }

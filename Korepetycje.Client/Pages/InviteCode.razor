@@ -1,8 +1,13 @@
 ﻿@page "/InviteCode"
 @layout AuthLayout
+@inject TooltipService tooltipService
 
 <RadzenStack Gap="2.5rem" AlignItems="AlignItems.Center">
-    <RadzenText TextStyle="TextStyle.H4" TextAlign="TextAlign.Center">Podaj kod otrzymany od korepetytora</RadzenText>
+    <RadzenText TextStyle="TextStyle.DisplayH4" style="color: var(--rz-link-hover-color)" TextAlign="TextAlign.Center">Podaj kod otrzymany od korepetytora <RadzenIcon Icon="info" Style="font-size: 1rem"
+                                                        MouseEnter="@(args => ShowTooltip(args) )"
+                                                        MouseLeave="@(args => tooltipService.Close())" />
+    </RadzenText>
+    
     <RadzenTemplateForm TItem="InviteModel" Data="@inviteModel" Submit="@PrzypisywanieUczniaDoKorepetytora">
        <RadzenStack Gap="1rem" AlignItems="AlignItems.Center">
             <RadzenStack Gap="0.25rem">
@@ -17,6 +22,17 @@
 </RadzenStack>
 
 @code {
+    private string Opis = "Wymagany, unikalny kod zaproszenia otrzymywany od korepetytora, który łączy Twoje konto z właściwym korepetytorem i odblokowuje wspólny kalendarz, lekcje, czat oraz rozliczenia";
+    void ShowTooltip(ElementReference elementReference, TooltipOptions? options = null)
+    {
+        var opcje = options ?? new TooltipOptions
+        {
+            Duration = null
+            
+        };
+        opcje.Style = "background-color: var(--rz-text-h4-color); color: var(--rz-base);";
+        tooltipService.Open(elementReference, Opis, opcje);
+    }
     
     private InviteModel inviteModel = new();
 

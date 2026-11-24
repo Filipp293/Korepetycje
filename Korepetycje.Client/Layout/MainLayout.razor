@@ -1,18 +1,50 @@
 ﻿@inherits LayoutComponentBase
 
-<RadzenComponents />
-<div class="page">
-    <div class="sidebar">
-        <NavMenu />
-    </div>
+<RadzenLayout style="position: relative">
+    <RadzenHeader style="box-shadow: none">
+        <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="0">
+            <RadzenSidebarToggle Click="@(() => sidebarExpanded = !sidebarExpanded)" />
+            <RadzenLabel  />
+        </RadzenStack>
+    </RadzenHeader>
+    <RadzenSidebar Responsive="true" @bind-Expanded="@sidebarExpanded" >
+        <RadzenPanelMenu style="border">
+        @* Menu dla Korepetytora *@
+    <AuthorizeView Roles="Korepetytor">
+        <RadzenPanelMenuItem Text="Kalendarz" Icon="calendar_month" />
+        <RadzenPanelMenuItem Text="Uczniowie" Icon="groups" />
+        <RadzenPanelMenuItem Text="Rozliczenia" Icon="payments" />
+        <RadzenPanelMenuItem Text="Czat" Icon="chat" />
+        <RadzenPanelMenuItem Text="Powiadomienia" Icon="notifications" />
+        <RadzenPanelMenuItem Text="Ustawienia" Icon="settings" />
+    </AuthorizeView>
 
-    <main>
-        <div class="top-row px-4">
-            <a href="https://learn.microsoft.com/aspnet/core/" target="_blank">About</a>
+    @* Wspólne pozycje dla Rodzica i Dziecka *@
+    <AuthorizeView Roles="Rodzic, Dziecko">
+        <RadzenPanelMenuItem Text="Pulpit" Icon="dashboard" />
+        <RadzenPanelMenuItem Text="Kalendarz" Icon="calendar_month" />
+        <RadzenPanelMenuItem Text="Czat" Icon="chat" />
+        <RadzenPanelMenuItem Text="Powiadomienia" Icon="notifications" />
+    </AuthorizeView>
+
+    @* Dodatkowe pozycje wyłącznie dla Rodzica *@
+    <AuthorizeView Roles="Rodzic">
+        <RadzenPanelMenuItem Text="Płatności" Icon="receipt_long" />
+        <RadzenPanelMenuItem Text="Ustawienia" Icon="settings" />
+    </AuthorizeView>
+        </RadzenPanelMenu>
+        <div class="rz-p-4">
+            <RadzenAppearanceToggle />
         </div>
 
-        <article class="content px-4">
+    </RadzenSidebar>
+    <RadzenBody MouseEnter=@(() => sidebarExpanded = false)>
+        <div class="rz-p-12">
             @Body
-        </article>
-    </main>
-</div>
+        </div>
+    </RadzenBody>
+</RadzenLayout>
+
+@code {
+    bool sidebarExpanded = false;
+}
