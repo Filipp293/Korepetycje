@@ -83,11 +83,11 @@
                         <RadzenFormField Text="Hasło" Variant="Variant.Outlined">
                             <RadzenPassword @bind-Value="registerModel.Password" Name="Password" />
                         </RadzenFormField>
-                        <RadzenRegexValidator Component="Password" 
+                      @*   <RadzenRegexValidator Component="Password" 
                       Text="Hasło musi mieć min. 8 znaków, zawierać wielką literę, cyfrę i znak specjalny." 
                         Pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@@$!%*?&._\-#+])[A-Za-z\d@@$!%*?&._\-#+]{8,}$" 
                                               Style="position:relative; width:fit-content " Popup="true" />
-                        <RadzenRequiredValidator Component="Password" Text="Hasło jest wymagane" Popup="true" Style="position:relative; width:fit-content " />
+                        <RadzenRequiredValidator Component="Password" Text="Hasło jest wymagane" Popup="true" Style="position:relative; width:fit-content " /> *@
                     </RadzenStack>
                     <RadzenStack Gap="1rem" Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Center" >
                         <RadzenButton Click="@Cofinj" Text="Wstecz" Style="width: 50%; margin-top: 0.5rem;" />
