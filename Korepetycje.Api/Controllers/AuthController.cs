@@ -42,4 +42,18 @@ public class AuthController : ControllerBase
 
         return Ok(result.Data);
     }
+
+    // Endpoint do potwierdzania adresu email użytkownika
+    [HttpGet("confirm-email")]
+    public async Task<IActionResult> ConfirmEmail([FromQuery] string token)
+    {
+        var result = await _authService.ConfirmEmailAsync(token);
+
+        if (!result.Success)
+        {
+            return BadRequest(new { message = result.Message });
+        }
+
+        return Ok(new { message = result.Message });
+    }
 }

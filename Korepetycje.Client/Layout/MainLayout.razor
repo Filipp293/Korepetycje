@@ -10,7 +10,7 @@
     <RadzenSidebar Responsive="true" @bind-Expanded="@sidebarExpanded" >
         <RadzenPanelMenu style="border">
         @* Menu dla Korepetytora *@
-    <AuthorizeView Roles="Korepetytor">
+    <AuthorizeView Roles="tutor">
         <RadzenPanelMenuItem Text="Kalendarz" Icon="calendar_month" />
         <RadzenPanelMenuItem Text="Uczniowie" Icon="groups" />
         <RadzenPanelMenuItem Text="Rozliczenia" Icon="payments" />
@@ -20,7 +20,7 @@
     </AuthorizeView>
 
     @* Wspólne pozycje dla Rodzica i Dziecka *@
-    <AuthorizeView Roles="Rodzic, Dziecko">
+    <AuthorizeView Roles="parent, child">
         <RadzenPanelMenuItem Text="Pulpit" Icon="dashboard" />
         <RadzenPanelMenuItem Text="Kalendarz" Icon="calendar_month" />
         <RadzenPanelMenuItem Text="Czat" Icon="chat" />
@@ -28,7 +28,7 @@
     </AuthorizeView>
 
     @* Dodatkowe pozycje wyłącznie dla Rodzica *@
-    <AuthorizeView Roles="Rodzic">
+    <AuthorizeView Roles="parent">
         <RadzenPanelMenuItem Text="Płatności" Icon="receipt_long" />
         <RadzenPanelMenuItem Text="Ustawienia" Icon="settings" />
     </AuthorizeView>

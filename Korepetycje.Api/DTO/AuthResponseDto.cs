@@ -8,5 +8,6 @@
         public required string LastName { get; set; }
         public required string Role { get; set; }
         public required string Token { get; set; }
+        public bool EmailVerified { get; set; }
     }
 }
